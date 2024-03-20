@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h2 class="text-center" > Details Page of Id Num. {{ entry.id }} </h2>
+
+<table class="table-sm table-bordered custom-table" >
+    <tbody>
+        <tr>
+            <th>Project ID: </th>
+            <td>{{ entry.project.project_id }}</td>
+        </tr>
+        <tr>
+            <th>Weighing Day: </th>
+            <td>{{ entry.weighing_day }}</td>
+        </tr>
+        <tr>
+            <th>Slip No: </th>
+            <td>{{ entry.slip_no }}</td>
+        </tr>
+        <tr>
+            <th>Wood Type: </th>
+            <td>{{ entry.woods_type.wood_name }}</td>
+        </tr>
+        <tr>
+            <th>Truck Number: </th>
+            <td>{{ entry.trucks_num }}</td>
+        </tr>
+        <tr>
+            <th>Vendor: </th>
+            <td>{{ entry.wood_supplier.name }}</td>
+        </tr>
+        <tr>
+            <th>Source: </th>
+            <td>{{ entry.wood_sources.location }}</td>
+        </tr>
+        <tr>
+            <th>Others: </th>
+            <td>{{ entry.wood_sources.registration_name }}</td>
+        </tr>
+        <tr>
+            <th>Total Weighing time: </th>
+            <td>{{ entry.total_weight_time }}</td>
+        </tr>
+        <tr>
+            <th>Total Weight: </th>
+            <td>{{ entry.total_weight }} KG </td>
+        </tr>
+        <tr>
+            <th>Empty Weight Time: </th>
+            <td>{{ entry.empty_weight_time }}</td>
+        </tr>
+        <tr>
+            <th>Empty Weight: </th>
+            <td>{{ entry.empty_weight }} KG</td>
+        </tr>
+        <tr>
+            <th>Net Weight: </th>
+            <td>{{ entry.net_weight }} KG </td>
+        </tr>
+        <tr>
+            <th>Remarks: </th>
+            <td>{{ entry.remarks }}  
+                {% if perms.wood_delivery.change_deliveryrecord %}
+                    <button type="button" class="btn btn-sm btn-info mx-auto float-right" data-toggle="modal" data-target="#remarksModal">Edit</button>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Created Time: </th>
+            <td>{{ entry.created_at }}</td>
+        </tr>
+        <tr>
+            <th>Updated Time: </th>
+            <td>{{ entry.updated_at }}</td>
+        </tr>
+        <tr>
+            <th>User: </th>
+            <td>{{ entry.user }}</td>
+        </tr>
+            
+        </tr>
+    </tbody>
+</table>
+<br>
+
+<!-- Remarks Edit Modal -->
+<div class="modal fade" id="remarksModal" tabindex="-1" role="dialog" aria-labelledby="remarksModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remarksModalLabel">Edit Remarks</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'wood_delivery:details_page' entry.id %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

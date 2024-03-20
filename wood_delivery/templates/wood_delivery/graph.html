@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h2 class="text-center">Line Graph</h2>
+    
+
+    {% if error_message %}
+        <div class="alert alert-danger">
+            {{ error_message }}
+        </div>
+    {% endif %}
+    <div>
+        <form method="GET" action="{% url 'wood_delivery:api_graph' %}" id="filterForm">
+            {% csrf_token %}
+            <div class="form-inline">
+                <div class="form-group mr-2">
+                    <b class="mr-2">Date: </b>
+                    {{ graph_search.start_date }} 
+                </div>
+                
+                <div class="form-group mr-2">
+                    <b class="mr-2">~</b> 
+                    {{ graph_search.end_date }}
+                </div>
+    
+                <button type="submit" class="btn-sm btn-primary" id="searchbtn">Filter</button>
+                <button type="button" class="btn-sm btn-secondary" id="searchbtn" onclick="resetForm()">Reset</button>
+            </div>&nbsp;&nbsp;
+        </form>
+    </div>
+
+    <div>
+        {{ plot_div|safe }}
+    </div>
+
+</div>
+
+
+    
+<!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+<script>
+    function resetForm() {
+        window.location.href = window.location.pathname; 
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Find the element using XPath
+        var elementToRemove = document.evaluate('/html/body/main/div[2]/div[2]/div/div/div/div/div[2]/div/div[4]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+        // Remove the element if it exists
+        if (elementToRemove) {
+            elementToRemove.parentNode.removeChild(elementToRemove);
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    label{
+        width: 150px;
+    }
+    .container-fluid {
+            padding: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        font-weight: bold;
+    }
+    /* Responsive Columns */
+    @media (max-width: 767px) {
+        .col-lg-4, .col-md-6 {
+            flex-basis: 100%;
+        }
+    }
+    /* Borders and Padding */
+    .row {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .row:last-child {
+        margin-bottom: 0;
+    }
+    .col-lg-4, .col-md-6 {
+        padding: 0 10px;
+    }
+    /* Optional: Add hover effect */
+    .row:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #note{
+        color:  #f30505;;
+    }
+</style>
+<div class="container-fluid">
+    {% if error_message %}
+        <div class="alert alert-danger"> 
+            {{ error_message}}
+        </div>
+    {% endif %}
+    <h2 class="text-center">Add New Equipment</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Equipment Name: *</b></label>
+                        {{ form.name }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Manufacturer: *</b></label>
+                        {{ form.manufacturer }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Model Num.: *</b></label>
+                        {{ form.model_no }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Serial Num.: </b></label>
+                        {{ form.serial_no }}
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Purchase Date: *</b></label>
+                        {{ form.purchase_date }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Image: </b></label>
+                        {{ form.image }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Use Location: </b></label>
+                        {{ form.use_location }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Price with tax: *</b></label>
+                        {{ form.price_with_tax }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Purchase by: *</b></label>
+                        {{ form.purchase_by }}
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Attachment Part: </b></label>
+                        {{ form.attachment }}
+                     </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Remark: </b></label>
+                        {{ form.remark }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Status: </b></label>
+                        {{ form.status }}
+                    </div>
+                </div>
+                <!-- Define other fields similarly -->
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <p id = "note">*If equipment is covered by warranty or guarantee, kindly complete the following form.*</p>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Provider: </b></label>
+                        {{ form.provider }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Coverage: </b></label>
+                        {{ form.coverage }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Start date: </b></label>
+                        {{ form.start_date }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>End Date: </b></label>
+                        {{ form.end_date }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Contact: </b></label>
+                        {{ form.contact }}
+                     </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label><b>Terms: </b></label>
+                        {{ form.terms }}
+                     </div>
+                </div>
+                
+            </div>
+        </div>
+    
+        <div class="text-center">
+            <button type="submit" class="bt btn-primary">Save</button>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

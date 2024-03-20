@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .card{
+        padding: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    .card:hover {
+        box-shadow: 0 0 10px rgb(56, 107, 138, 0.4); 
+    }
+</style>
+
+
+<div class="container-fluid">
+    {% if error_message %}
+        <div class="alert alert-danger"> 
+            {{ error_message}}
+        </div>
+    {% endif %}
+    <!-- Main title code -->
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center" >Details</h2>
+        </div>
+    </div>
+
+    
+    <div class="equipment-card card">
+        {% for equipment in equipment_data %}
+            <!-- equipment title code -->
+            <div class="row ">
+                <div class="col">
+                    <h4>Equipment</h4>
+                </div>
+                <div class="col-auto">
+                    {% if perms.projects.add_insurance  %}
+                    <a href="{% url 'projects:add_insurance' project_id=equipment.project id=equipment.id %}">
+                        <img src="{% static 'images/add.png' %}" alt="Edit" title="Add Insurance" style="height: 23px; margin-right: 10px;margin-bottom: 15px;" class="img-fluid" >
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        
+            <!-- equipment details code -->
+            <div class="row card-body">
+                <div class="col-lg-3">
+                    <img src="{{ MEDIA_URL }}{{ equipment.image }}" alt="Equipment Image" class="img-fluid" style="max-height: 180px !important;">
+                </div>
+
+                <div class="col-lg-9 col-md-12 col-sm-12">
+                    <div class="row" style="border: 0px solid #ccc;">
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Project: </b>
+                                {{ equipment.project }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Equipment Name: </b>
+                                {{ equipment.name }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Manufacturer: </b>
+                                {{ equipment.manufacturer }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Model Num.: </b>
+                                {{ equipment.model_no }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Serial Num.: </b>
+                                {{ equipment.serial_no }}
+                            </div>
+                        </div>
+                    
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Purchase Date: </b>
+                                {{ equipment.purchase_date }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Use Location: </b>
+                                {{ equipment.use_location }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Price with tax: </b>
+                                {{ equipment.price_with_tax }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Purchase by: </b>
+                                {{ equipment.purchase_by }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Status: </b>
+                                {{ equipment.status }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Attachment Part: </b>
+                                {{ equipment.attachment }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Remark: </b>
+                                {{ equipment.remark }}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Created At: </b>
+                                {{ equipment.created_at }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>Updated At: </b>
+                                {{ equipment.updated_at }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div >
+                                <b>User: </b>
+                                {{ equipment.user }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- w/g title code -->
+            <div class="row">
+                <div class="col">
+                    <h4>Warranty/Guarantee</h4>
+                </div>
+                <div class="col-auto">
+                    {% if equipment.provider %}
+                        <a href="{% url 'projects:w_claim' project_id=equipment.project equipment_id=equipment.id %}" class="btn btn-link" style="text-decoration: none;">Claim W/G</a>
+                    {% endif %}
+                </div>  
+            </div>
+            
+            <!-- w/g display code -->
+            <div class="row card-body">
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>Provider: </b>
+                        {{ equipment.provider }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>Coverage: </b>
+                        {{ equipment.coverage }} ¥
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>Start date: </b>
+                        {{ equipment.start_date }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>End Date: </b>
+                        {{ equipment.end_date }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>Contact: </b>
+                        {{ equipment.contact }}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div >
+                        <b>Terms: </b>
+                        {{ equipment.terms }}
+                    </div>
+                </div>
+
+            </div>
+            <hr>
+        {% endfor %}
+        
+        <!-- w/g claim title code -->
+        <div class="row">
+            <div class="col">
+                <h4>W/G Claim</h4>
+            </div>
+        </div>
+        <!--w/g claim details code -->
+        <div class="row card-body">
+            <div class="col">
+                <table class="table-sm table-bordered mx-auto" id='fulltable'>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Claim Date</th>
+                            <th>Approve Date</th>
+                            <th>Claim Amount</th>
+                            <th>Deductible Amount</th>
+                            <th>Coverage Amount</th>
+                            <th>Resolution</th>
+                            <th>Notes</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    {% for items in w_claim %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{items.claim_date}}</td>
+                            <td>{{items.approve_date}}</td>
+                            <td>{{items.claim_amount}} ¥</td>
+                            <td>{{items.deductible_amount}} ¥</td>
+                            <td>{{items.coverage_amount}} ¥</td>
+                            <td>{{items.resolution}}</td>
+                            <td>{{items.notes}}</td>
+                            <td>{{items.created_at}}</td>
+                            <td>{{items.updated_at}}</td>
+                            <td>{{items.user}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+    <br>
+    <div class="Insurance-card card" >
+        <!-- insurance title code -->
+        <div class="row">
+            <div class="col">
+                <h4>Insurance</h4>
+            </div>
+            <div class="col-auto">
+                {% for insurance  in insurance_data %}
+                    {% if perms.projects.add_claim %}
+                        <a href="{% url 'projects:add_claim' project_id=insurance.project equipment_id=insurance.equipment.id insurance_id=insurance.id %}">Claim</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- insurance detais code -->
+        <div class="row card-body">
+            <div class="col">
+                {% include 'projects/insurance.html' %}
+            </div>
+        </div>
+        <hr>
+        <!-- insurance claim title code -->
+        <div class="row">
+            <div class="col">
+                <h4>Insurance Claim</h4>
+            </div>
+        </div>
+
+        <!-- insurance claim detais code -->
+        <div class="row card-body">
+            <div class="col">
+                {% include 'projects/claim.html' %}
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="maintenance-card card" >
+        <!-- maintenance claim title code -->
+        <div class="row">
+            <div class="col">
+                <h4>Maintenance</h4>
+            </div>
+            <div class="col-auto">
+                {% for equipment  in equipment_data %}
+                    {% if perms.projects.add_maintenance  %}
+                        <a href="{% url 'projects:add_maintenance' project_id=equipment.project equipment_id=equipment.id %}">
+                            <img src="{% static 'images/add.png' %}" alt="Edit" title="Maintenance" style="height: 23px; margin-right: 10px;margin-bottom: 15px;" class="img-fluid" >
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <!-- maintenance claim detais code -->
+        <div class="row card-body">
+            {% include 'projects/maintenance.html' %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

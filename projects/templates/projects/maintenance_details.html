@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h2 class="text-center">Maintenance Detail</h2>
+
+<table class="table-sm table-bordered custom-table" >
+        <tbody>
+                
+
+            <tr>
+                <th>Project: </th>
+                <td>{{ maintenance.project }}</td>
+            </tr>
+            <tr>
+                <th>Equipment: </th>
+                <td>{{ maintenance.equipment }}</td>
+            </tr>
+            <tr>
+                <th>Eaintenance Date: </th>
+                <td>{{ maintenance.maintenance_date }}</td>
+            </tr>
+            <tr>
+                <th>Next Maintenance Date: </th>
+                <td>{{ maintenance.next_maintenance_date }}</td>
+            </tr>
+            <tr>
+                <th>Maintenance Type: </th>
+                <td>{{ maintenance.maintenance_type }}</td>
+            </tr>
+            <tr>
+                <th>Description: </th>
+                <td>{{ maintenance.description }}</td>
+            </tr>
+            <tr>
+                <th>Lead By: </th>
+                <td>{{ maintenance.lead_by }}</td>
+            </tr>
+            <tr>
+                <th>Test Result: </th>
+                <td>{{ maintenance.test_result }}</td>
+            </tr>
+            <tr>
+                <th>Notes: </th>
+                <td>{{ maintenance.notes }} KG </td>
+            </tr>
+            <tr>
+                <th>Images URL: </th>
+                <td>
+                        {% if maintenance.image %}
+                            <a href="{{ maintenance.image }}" target="_blank">Click...</a>
+                        {% else %}
+                            None
+                        {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Created Time: </th>
+                <td>{{ maintenance.created_at }}</td>
+            </tr>
+            <tr>
+                <th>Updated Time: </th>
+                <td>{{ maintenance.updated_at }}</td>
+            </tr>
+            <tr>
+                <th>User: </th>
+                <td>{{ maintenance.user }}</td>
+            </tr>
+            <tr>
+                <th colspan="2" style="text-align: center;">
+                    {% if not maintenance.approval and can_approve %}
+                        <form id="verifyForm" method="post" action="{% url 'projects:maintenance_edit' project_id=maintenance.project equipment_id=maintenance.equipment.id maintenance_id=maintenance.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-primary" type="submit" id="verifyBtn">Approve</button>
+                        </form>
+                    {% elif maintenance.approval %}
+                        <button class="btn btn btn-success">
+                            Approved
+                        </button>
+                        
+                    {% else %}
+                        <button class="btn btn-danger">
+                                Prohibited
+                        </button>
+                        
+                    {% endif %}
+                </th>
+            </tr>
+            
+        </tbody>
+    </table>
+
+
+
+{% endblock %}

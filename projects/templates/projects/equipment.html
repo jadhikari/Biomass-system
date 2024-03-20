@@ -1,0 +1,64 @@
+{% load static %}
+<h2>Equipment List</h2>
+
+<div>
+    {% if perms.projects.add_equipment %}
+        <a href="{% url 'projects:add_equipment' project.project_id %}">
+            <img src="{% static 'images/add.png' %}" alt="Edit" title="Add Equipment" style="height: 23px; margin-right: 10px;margin-bottom: 15px;" class="img-fluid editForestBtn float-right" >
+        </a>
+    {% endif %} 
+</div>
+
+<div>
+    <table  class="table-sm table-bordered mx-auto" id='fulltable' class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Manufacturer</th>
+                <th>Model no</th>
+                <th>Purchase date</th>
+                <th>Purchase by</th>
+                <th>Price weith Tax</th>
+                <th>Remark</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipment  in equipment_data %}
+                <tr>
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+                    <td>
+                        {% if perms.projects.view_equipment %}
+                            <a href="{% url 'projects:equipment_detail' project_id=project id=equipment.id %}">{{ equipment.name }}</a>
+                        {%else%}
+                            {{ equipment.name }}
+                        {% endif %}
+                    </td>
+                    <td>{{ equipment.manufacturer }}</td>
+                    <td>{{ equipment.model_no }}</td>
+                    <td>{{ equipment.purchase_date }}</td>
+                    <td>{{ equipment.purchase_by }}</td>
+                    <td>{{ equipment.price_with_tax }}</td>
+                    <td>{{ equipment.remark }}</td>
+                    <td>{{ equipment.created_at }}</td>
+                    <td>{{ equipment.updated_at }}</td>
+                    <td>{{ equipment.user }}</td>
+                    <td>
+                        {% if perms.projects.change_equipment %}
+                            <a href="{% url 'projects:edit_equipment' project_id=project id=equipment.id %}">
+                                <img src="{% static 'images/edit.png' %}" alt="Edit" style="height: 20px; margin-left: 35%;" class="img-fluid" >
+                            </a>
+                        {% endif %}
+                    </td>
+    
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

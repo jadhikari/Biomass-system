@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+
+
+
+<h2 class="text-center">{% trans "Register Certificate" %}</h2>
+{% if perms.certificate.add_certificate %}
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <level {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</level>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form id="certificateForm" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table class="table-sm table-bordered custom-table">
+      <tbody>
+        <table class="table-sm table-bordered custom-table">
+            <tbody>
+                {% for field in form %}
+                    <tr>
+                        <th>{{ field.label_tag }} <span style="color: red;"><sup>*</sup></span></th>
+                        <td>{{ field }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+      </tbody>
+    </table>
+    <br>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary" id="saveBtn">Save </button>
+        <script>
+            document.getElementById('saveBtn').addEventListener('click', function () {
+                if (confirm("Did you upload the correct certificate for the correct supplier? Double-check it!")) {
+                    document.getElementById('certificateForm').submit();
+                } else {
+                    // Do nothing or provide feedback to the user
+                }
+            });
+        </script>
+      </div>
+  </form>
+{% endif %}
+
+  
+<hr>
+
+
+<div class="certificate-list-container">
+  <h3>{% trans "Certificate Submit list" %}</h3>
+  <table class="table-sm table-bordered mx-auto" id="fulltable">
+      <thead>
+          <tr>
+              <th>ID</th>
+              <th>{% trans "Projects" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Unverified Certificate" %}</th>
+              <th>{% trans "Verified Certificate" %}</th>
+              <th>{% trans "Created At" %}</th>
+              <th>{% trans "Updated At" %}</th>
+              <th>{% trans "User" %}</th>
+              <th>{% trans "Action" %}</th>
+          </tr>
+      </thead>
+      <tbody>
+              {% for certificate in filtered_certificates %}
+                  <tr>
+                      <td>{{ certificate.id }}</td>
+                      <td>{{ certificate.supplier_name.project_id }}</td>
+                      <td>{{ certificate.supplier_name.name }}</td>
+                      <td>
+                          <a href="{{ certificate.unverified_certificate.url }}" download="{{ certificate.unverified_certificate.name }}" download>
+                              <button class="btn btn-sm">
+                                  <img src="{% static 'images/pdf.png' %}" alt="" class="img-fluid" style="height: 25px;"> &nbsp;&nbsp; Download
+                                  
+                              </button>
+                          </a>
+                      </td>
+                      <td>
+                          {% if certificate.verified_certificate %}
+                              <a href="{{ certificate.verified_certificate.url }}" download>
+                                  <button class="btn btn-sm">
+                                      <img src="{% static 'images/pdf.png' %}" alt="" class="img-fluid" style="height: 25px;"> Download
+                                  </button>
+                              </a>
+                          {% else %}
+                              <p class="text-primary">Pending...</p>
+                          {% endif %}
+                      </td>
+                      <td>{{ certificate.created_at }}</td>
+                      <td>{{ certificate.updated_at }}</td>
+                      <td>{{ certificate.user }}</td>
+                      <td>
+                        {% if certificate.verified_certificate %}
+                              <img src="{% static 'images/ok.png' %}" alt="" class="img-fluid" style="height: 25px;">
+                        {% else %}
+                            {% if perms.certificate.change_certificate %}
+                                {%for supplierLogo in supplierLogos %}
+                                    {% if certificate.supplier_name == supplierLogo.wood_supplier and request.user.username in supplierLogo.email %}
+                                            <form id="verifyForm" method="post" action="{% url 'certificate:display_pdf_and_form' certificate.id %}">
+                                                {% csrf_token %}
+                                                <button class="btn-sm btn-primary" type="button" id="verifyBtn">{% trans "verify" %}</button>
+                                            </form>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                      </td>
+                  </tr>
+              {% endfor %}
+          
+      </tbody>
+  </table>
+</div>
+
+<script>
+    document.getElementById('verifyBtn').addEventListener('click', function () {
+        if (confirm("{% trans 'Did you check the unverified certificate? If not, please download and check it.' %}")) {
+            document.getElementById('verifyForm').submit();
+        } else {
+            // Do nothing
+        }
+    });
+
+
+</script>
+
+
+{% endblock %}

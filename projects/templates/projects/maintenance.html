@@ -1,0 +1,51 @@
+{% load static %}
+    <table  class="table-sm table-bordered mx-auto" id='fulltable'>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Maint. Date</th>
+                <th>Next Maint. Date</th>
+                <th>Maintenance Type</th>
+                <th>Image </th>
+                <th>Leader</th>
+                <th>Test Result</th>
+                <th>Description</th>
+                <th>Notes</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>User</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for maintenance  in maintenance_data %}
+                <tr>
+                    <td><a href="{% url 'projects:maintenance_details' project_id=maintenance.project equipment_id=maintenance.equipment.id  maintenance_id=maintenance.id %}">{{ forloop.counter }}</a></td>
+                    <td>{{ maintenance.maintenance_date }}</td>
+                    <td>{{ maintenance.next_maintenance_date }}</td>
+                    <td>{{ maintenance.maintenance_type }}</td>
+                    <td>
+                        {% if maintenance.image %}
+                            <a href="{{ maintenance.image }}" target="_blank">Click...</a>
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                    <td>{{ maintenance.lead_by }}</td>
+                    <td>{{ maintenance.test_result }}</td>
+                    <td>{{ maintenance.description }}</td>
+                    <td>{{ maintenance.notes }}</td>
+                    <td>{{ maintenance.created_at }}</td>
+                    <td>{{ maintenance.updated_at }}</td>
+                    <td>{{ maintenance.user }}</td>
+                    <td>
+                        {% if maintenance.approval %}
+                            <img src="{% static 'images/ok.png' %}" alt="" class="img-fluid" style="height: 25px;">
+                        {% else %}
+                            Pending...
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>

@@ -1,0 +1,36 @@
+{% load static %}
+
+    <table  class="table-sm table-bordered mx-auto" id='fulltable' class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Policy Number</th>
+                <th>Claim Date</th>
+                <th>Approve Date</th>
+                <th>Claim Amount</th>
+                <th>Deductible Amount</th>
+                <th>Coverage Amount</th>
+                <th>Resolution</th>
+                <th>Notes</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>User</th>
+            </tr>
+        </thead>
+        {% for items in i_claim %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{items.insurance.policy_number}}</td>
+                <td>{{items.claim_date}}</td>
+                <td>{{items.approve_date}}</td>
+                <td>{{items.claim_amount}} ¥</td>
+                <td>{{items.deductible_amount}} ¥</td>
+                <td>{{items.coverage_amount}} ¥</td>
+                <td>{{items.resolution}}</td>
+                <td>{{items.notes}}</td>
+                <td>{{items.created_at}}</td>
+                <td>{{items.updated_at}}</td>
+                <td>{{items.user}}</td>
+            </tr>
+        {% endfor %}
+    </table>

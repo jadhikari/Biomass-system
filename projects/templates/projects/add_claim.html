@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h2 class=" text-center"> Claim {{type}}</h2>
+    {% if form.errors %}
+        <div class="errors">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <level style="color:  #f30505;">{{ error }}</level>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+  <form method="post" action="">
+    {% csrf_token %}
+    <table class="table-sm table-bordered custom-table">
+        {% for field in form %}
+        <tr>
+            <th>{{ field.label_tag }}</th>
+            <td>{{ field }}
+                {% if field.errors %}
+                    <div class="text-danger">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+            
+    </table>
+    <br>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary" >Save</button>
+    </div>
+</form>
+
+
+{% endblock %}

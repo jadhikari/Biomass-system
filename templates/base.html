@@ -1,0 +1,20 @@
+{% load static %} 
+{% include 'navbar.html' %}
+
+<main id = "main-conten" style= "padding-left:20px;padding-right:20px;margin-top: 2px ">
+    {% if '/welcome/' != request.path %}
+        <div id="breadcrumbs"  aria-label="breadcrumb" style="width: 96%; margin-left: 2%;" >
+            <ul class="breadcrumb">
+                {% for crumb in breadcrumbs %}
+                    <li class="breadcrumb-item"><a href="{{ crumb.url }}">{{ crumb.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    {% block content %}
+                
+    {% endblock %}
+</main>
+{% include 'footer.html' %}
+

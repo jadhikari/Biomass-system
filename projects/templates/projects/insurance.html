@@ -1,0 +1,46 @@
+{% load static %}
+
+    <table  class="table-sm table-bordered mx-auto" id='fulltable'>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Policy Number</th>
+                <th>Provider</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Coverage Details</th>
+                <th>Premium Amount</th>
+                <th>Deductible</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for insurance  in insurance_data %}
+                <tr>
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+                    <td>{{ insurance.policy_number }}</td>
+                    <td>{{ insurance.provider }}</td>
+                    <td>{{ insurance.start_date }}</td>
+                    <td>{{ insurance.end_date }}</td>
+                    <td>{{ insurance.coverage_details }}</td>
+                    <td>{{ insurance.premium_amount }} ¥</td>
+                    <td>{{ insurance.deductible }} ¥</td>
+                    <td>{{ insurance.created_at }}</td>
+                    <td>{{ insurance.updated_at }}</td>
+                    <td>{{ insurance.user }}</td>
+                    <td>
+                        {% if perms.insurance.change_insurance %}
+                            <a href="{% url 'projects:edit_insurance' project_id=insurance.project id=insurance.id %}">
+                                <img src="{% static 'images/edit.png' %}" alt="Edit" style="height: 20px;" class="img-fluid" >
+                            </a> 
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>

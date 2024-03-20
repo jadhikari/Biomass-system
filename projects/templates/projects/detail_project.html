@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <!-- Project Details Section -->
+    <div class="project-detail mt-5 shadow p-3 mb-3 bg-white rounded">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center ">{{ project.project_name }} Project</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mt-2">
+                <img src="{{ MEDIA_URL }}{{ project.image }}" alt="Project Image" class="img-fluid rounded" style="max-height: 250px !important;">
+            </div>
+            <div class="col-md-8" style="margin-top: 2%; font-size: 18px;">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center text-primary">
+                            <u>Project Details</u>
+                        </h3>  
+                    </div> 
+                </div>
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Project ID:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.project_id }}
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Project Name:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.project_name }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Resource:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.resource }}
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Capacity (AC):</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.capacity_ac }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Capacity (DC):</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.capacity_dc }}
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Utility Company:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.utility_company }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Address:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.address }}
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Longitude:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.longitude }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Latitude:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.latitude }}
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-h">
+                        <strong>Altitude:</strong>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-3 details-d">
+                        {{ project.altitude }}
+                    </div>
+                </div>
+            </div>    
+        </div>
+    </div>
+
+    
+    <div id="equipment-section" >
+        {% include 'projects/equipment.html' %}
+    </div>
+</div>
+{% endblock %}

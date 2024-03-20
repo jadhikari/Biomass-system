@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+        <h2 class= "text-center">Wood Suppliers List</h2>
+
+        
+        {% if perms.vendor.add_woodsupplier %}
+            <button class="btn btn-primary float-right" id="addSupplierBtn" style="padding:5px;margin-right:20px;">    
+                Add Supplier
+            </button>
+        {% endif %}
+        
+
+        
+        <br><br>
+        <table class="table-sm table-bordered mx-auto" id="fulltable" >
+            <tbody>
+                <thead>
+                    <th>ID</th>
+                    <th>Project</th>
+                    <th>Name</th>
+                    <th>Registration</th>
+                    <th>Address</th>
+                    <th>Document</th>
+                    <th>Created Time</th>
+                    <th>Updated Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                </thead>
+                {% for supplier in supplier_data %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'vendor:source_list' supplier.id  %}">{{ supplier.wood_supplier_id }}</a>
+                            
+                        </td>
+                        <td>{{ supplier.project }}</td>
+                        <td>{{ supplier.name }}</td>
+                        <td>{{ supplier.registration_name }}</td>
+                        <td title="{{supplier.address}}">{{ supplier.address|slice:":5" }}...</td>
+                        <td title="{{supplier.document}}">{{ supplier.document|slice:":5" }}...</td>
+                        <td>{{ supplier.created_at }}</td>
+                        <td>{{ supplier.updated_at }}</td>
+                        <td>{{ supplier.user }}</td>
+                        <td>
+                            
+                            {% if perms.vendor.change_woodsupplier %}
+                                <div id="editSupplierBtn" class="editSupplierBtn" data-supplier-id="{{ supplier.id }}">
+                                    <img src="{% static 'images/edit.png' %}" alt="Edit" class="img-fluid" style="height: 20px; margin-left: 35%; ">
+                                </div>
+                            {% else %}
+                                None
+                            {% endif %}
+                            
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            document.getElementById('addSupplierBtn').addEventListener('click', function (e) {
+                e.preventDefault();
+    
+                if (confirm("Do you want to add a supplier?")) {
+                    window.location.href = "{% url 'vendor:add_supplier' %}";
+                } else {
+                    // Do nothing or redirect to another page if needed
+                }
+            });
+
+            var editButtons = document.querySelectorAll('.editSupplierBtn');
+
+            editButtons.forEach(function(button) {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    var supplier_id = this.getAttribute('data-supplier-id');
+                    console.log(supplier_id);
+
+                    if (confirm("Are you sure you want to edit this supplier?")) {
+                        window.location.href = "{% url 'vendor:edit_supplier' 0 %}".replace('0', supplier_id);
+                    } else {
+                        // Do nothing or provide feedback to the user
+                    }
+                });
+            });
+        </script>
+    
+
+{% endblock %}

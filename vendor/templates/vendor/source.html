@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h2 class= "text-center">Wood Source List For Supplier: {{ supplier.name }}  {{ supplier.project.project_id }}</h2>
+{% if perms.vendor.add_woodsource %}
+    <button class="btn btn-primary float-right" id="addForestBtn" style="padding:5px;margin-right:20px;">Add Source</button>
+    <script>
+        document.getElementById('addForestBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (confirm("Do you want to add a wood source?")) {
+                window.location.href = "{% url 'vendor:add_source' id=supplier.id %}";
+            } else {
+                // Do nothing or redirect to another page if needed
+            }
+        });
+    </script>
+{% endif %}
+<br><br>
+<table class="table-sm table-bordered mx-auto" id='fulltable' class="table">
+    <thead>
+        <tr>
+            <th>Project</th>
+            <th>Supplier ID</th>
+            <th>Source ID</th>
+            <th>Source Location</th>
+            <th>Registration</th>
+            <th>Registration Date</th>
+            <th>Authority</th>
+            <th>Classification</th>
+            <th>Removal</th>
+            <th>Area</th>
+            <th>Distance</th>
+            <th>Document</th>
+            <th>Created Time</th>
+            <th>Updated Time</th>
+            <th>User</th>
+            <th>Action</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for source in source_data %}
+            <tr>
+                <td>{{ source.project.project_id }}</td>
+                <td>{{ source.wood_supplier.wood_supplier_id }}</td>
+                <td>{{ source.wood_source_id }}</td>
+                <td>{{ source.location }}</td>
+                <td>{{ source.registration_name }}</td>
+                <td>{{ source.registration_date }}</td>
+                <td>{{ source.authority }}</td>
+                <td title="{{source.classification}}">{{ source.classification|slice:":5" }} ...</td>
+                <td title="{{source.removal}}">{{ source.removal |slice:":5" }} ... </td>
+                <td>{{ source.area }}</td>
+                <td>{{ source.distance }}</td>
+                <td title="{{source.document}}">{{ source.document |slice:":5" }} ...</td>
+                <td>{{ source.created_at }}</td>
+                <td>{{ source.updated_at }}</td>
+                <td>{{ source.user }}</td>
+                <td>
+                    {% if perms.vendor.change_woodsource %}
+                        <img src="{% static 'images/edit.png' %}" alt="Edit" style="height: 20px; margin-left: 35%;" class="img-fluid editForestBtn" 
+                            data-supplier-id="{{ source.wood_supplier.id }}" data-forest-id="{{ source.id }}">
+                        
+
+                        <script>
+                            // Check if the event listener is already attached to avoid duplication
+                            if (!window.editForestBtnListenersAttached) {
+                                // Using class selector for all elements with the class editForestBtn
+                                var parentElement = document.querySelector('.table') || document.body;
+                        
+                                parentElement.addEventListener('click', function (e) {
+                                    // Check if the clicked element has the editForestBtn class
+                                    if (e.target && e.target.classList.contains('editForestBtn')) {
+                                        e.preventDefault();
+                        
+                                        var supplierId = e.target.getAttribute('data-supplier-id');
+                                        var sourceId = e.target.getAttribute('data-forest-id');
+                        
+                                        console.log("Supplier ID:", supplierId);
+                                        console.log("Forest ID:", sourceId);
+                        
+                                        if (confirm("Are you sure you want to edit this wood source?")) {
+                                            // Use the correct URL pattern for your project
+                                            window.location.href = `/vendor/${supplierId}/source-list/${sourceId}/edit/`;
+                                        } else {
+                                            // Do nothing or provide feedback to the user
+                                        }
+                                    }
+                                });
+                        
+                                // Set a flag to indicate that the event listener is attached
+                                window.editForestBtnListenersAttached = true;
+                            }
+                        </script>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

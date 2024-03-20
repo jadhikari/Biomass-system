@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2 class=" text-center">Add Wood Source for: {{ supplier.name }}</h2>
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+    {% endif %}
+    <br>
+  <form method="post" action="" id= "addForestForm">
+    {% csrf_token %}
+    <table class="table-sm table-bordered custom-table">
+        <tbody>
+            {% for field in form %}
+                <tr>
+                    <th>{{ field.label_tag }}</th>
+                    <td>{{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+            
+    </table>
+    <br>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary" id="addForestBtn">Save Forest</button>
+        <button type="button" class="btn btn-warning" onclick="resetForm()">Reset</button>
+    </div>
+</form>
+<script>
+    function resetForm() {
+        document.getElementById("addForestForm").reset();
+    }
+    document.getElementById('addForestBtn').addEventListener('click', function () {
+        if (confirm("Are you sure the information is correct?")) {
+            document.getElementById('addForestForm').submit();
+        } else {
+            // Do nothing or provide feedback to the user
+        }
+    });
+</script>
+{% endblock %}

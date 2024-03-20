@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        {% if error_message %}
+            <div class="alert alert-danger"> 
+                {{ error_message }}
+            </div>
+        {% endif %}
+ 
+        <h2 class="text-center">Edit Project</h2>
+        
+        <h1 class="text-uppercase"></h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table class="table-sm table-bordered custom-table">
+                <tbody>
+                    {% for field in form %}
+                        <tr>
+                            <th>{{ field.label_tag }}</th>
+                            <td>
+                                {% if field.name == 'image' and project.image %}
+                                    <img src="{{ project.image.url }}" alt="Current Image">
+                                {% endif %}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        
+            <br>
+            <div class="text-center">
+                <button type="submit" class="btn btn-sm btn-primary" id="addSupplierBtn">Save</button>
+                <button type="button" class="btn btn-sm btn-warning" onclick="resetForm()">Reset</button>
+            </div>
+        </form>
+        
+
+
+    </div>
+{% endblock %}
