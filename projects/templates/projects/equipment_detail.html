@@ -255,13 +255,6 @@
             <div class="col">
                 <h4>Insurance</h4>
             </div>
-            <div class="col-auto">
-                {% for insurance  in insurance_data %}
-                    {% if perms.projects.add_claim %}
-                        <a href="{% url 'projects:add_claim' project_id=insurance.project equipment_id=insurance.equipment.id insurance_id=insurance.id %}">Claim</a>
-                    {% endif %}
-                {% endfor %}
-            </div>
         </div>
 
         <!-- insurance detais code -->

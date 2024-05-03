@@ -7,7 +7,7 @@ from .models import DeliveryRecord
 from wood_type.models import WoodType
 from vendor.models import WoodSupplier, WoodSource
 from .wsl_utils_views import filter_wood_scaling_data, paginate_wood_scaling_data, calculate_totals
-from .pdf_utils_views import generate_pdf, download_certificate
+from .pdf_utils_views import generate_pdf, download_certificate, pdf_data
 from .forms import UploadFileForm, DeliverySearchForm, RemarksForm, GraphSearchForm
 import pandas as pd
 from io import StringIO 
@@ -22,6 +22,7 @@ from collections import defaultdict
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
 
+from .signals import non_duplicate_data_uploaded
 
 @login_required
 @permission_required('wood_delivery.view_deliveryrecord', raise_exception=True)
@@ -211,7 +212,7 @@ def upload_csv(request):
                 duplicate_rows = []
                 non_duplicate_rows = []
                 error_rows = []
-                # Iterate through rows and check for duplicates
+                
                 # Iterate through rows and check for duplicates
                 for index, row in df.iterrows():
                     # Handle 'woods_type' value
@@ -222,25 +223,30 @@ def upload_csv(request):
                         row['woods_type'] = wood_type_instance
                     else:
                         error_rows.append({"row_index": index, "column": "woods_type", "value": woods_type_value})
-                        continue  # Skip the row if WoodType instance is not found
+                        #continue  # Skip the row if WoodType instance is not found
+
                     # Handle 'wood_supplier' value
                     wood_supplier_value = row['wood_supplier']
                     wood_supplier_instance = WoodSupplier.objects.filter(project=row['project'], wood_supplier_id=wood_supplier_value).first()
+                    
                     # Check if WoodSupplier instance exists
                     if wood_supplier_instance:
                         row['wood_supplier'] = wood_supplier_instance  # Assign the WoodSupplier instance itself
                     else:
                         error_rows.append({"row_index": index, "column": "wood_supplier", "value": wood_supplier_value})
-                        continue
+                        #continue   # Skip the row if Woodsupplier instance is not found
+
                     # Handle 'wood_sources' value
                     wood_sources_value = row['wood_sources']
                     wood_source_instance = WoodSource.objects.filter(project=row['project'], wood_source_id=wood_sources_value).first()
+                    
                     # Check if WoodSource instance exists
                     if wood_source_instance:
                         row['wood_sources'] = wood_source_instance  # Assign the WoodSource instance itself
                     else:
                         error_rows.append({"row_index": index, "column": "wood_sources", "value": wood_sources_value})
-                        continue# Skip the row if WoodSource instance is not found
+                        # continue                # Skip the row if WoodSource instance is not found
+
                     # Check for duplicates based on selected columns
                     existing_row = DeliveryRecord.objects.filter(
                         weighing_day=row['weighing_day'],
@@ -269,12 +275,16 @@ def upload_csv(request):
                                         'wood_sources', 'total_weight_time', 'total_weight', 'empty_weight_time',
                                         'empty_weight', 'net_weight', 'remarks', 'user', 'project']
 
-                    DeliveryRecord.objects.bulk_create(
-                        [DeliveryRecord(**row[relevant_columns].to_dict()) for row in non_duplicate_rows]
-                    )
+                    delivery_records = [DeliveryRecord(**row[relevant_columns].to_dict()) for row in non_duplicate_rows]
+                    DeliveryRecord.objects.bulk_create(delivery_records)
+
 
                     print("\nNon-duplicate rows successfully inserted into the database.")
                     success = True
+
+                    pdf_data(delivery_records)
+                    non_duplicate_data_uploaded.send(sender=None, non_duplicate_rows=delivery_records)
+
                 # Print error rows
                 if error_rows:
                     error_message = "Missing related instances. Cannot process the CSV data."

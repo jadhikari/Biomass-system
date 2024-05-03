@@ -25,8 +25,7 @@ media/
 # Secret key
 *.secret
 
-# Environment variables
-.env
+
 
 # Compiled Python files
 *.pyc
@@ -45,4 +44,5 @@ local_settings.py
 
 *.pyo
 
-*/migrations
+*/migrations/*.py
+!*/migrations/__init__.py

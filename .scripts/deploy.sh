@@ -6,7 +6,7 @@ echo "Deployment started ..."
 # Pull the latest version of the app
 echo "Copying New changes...."
 git pull origin master
-echo "New changes copied to server !"
+echo "New changes copied to server found!"
 
 # Activate Virtual Env
 #Syntax:- source virtual_env_name/bin/activate
@@ -16,6 +16,10 @@ echo "Virtual env 'env' Activated !"
 
 echo "Installing Dependencies..."
 pip install -r requirements.txt --no-input
+
+echo "Clearing Cache..."
+python manage.py clean_pyc
+python manage.py clear_cache
 
 echo "Serving Static Files..."
 python manage.py collectstatic --noinput

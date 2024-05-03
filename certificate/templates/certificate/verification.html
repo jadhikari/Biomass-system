@@ -101,9 +101,9 @@
                             {% if perms.certificate.change_certificate %}
                                 {%for supplierLogo in supplierLogos %}
                                     {% if certificate.supplier_name == supplierLogo.wood_supplier and request.user.username in supplierLogo.email %}
-                                            <form id="verifyForm" method="post" action="{% url 'certificate:display_pdf_and_form' certificate.id %}">
+                                            <form  method="post" >
                                                 {% csrf_token %}
-                                                <button class="btn-sm btn-primary" type="button" id="verifyBtn">{% trans "verify" %}</button>
+                                                <a href="{% url 'certificate:display_pdf_and_form' certificate.id %}" class="btn btn-sm btn-primary">{% trans "verify" %}</a>
                                             </form>
                                     {% endif %}
                                 {% endfor %}
@@ -116,18 +116,5 @@
       </tbody>
   </table>
 </div>
-
-<script>
-    document.getElementById('verifyBtn').addEventListener('click', function () {
-        if (confirm("{% trans 'Did you check the unverified certificate? If not, please download and check it.' %}")) {
-            document.getElementById('verifyForm').submit();
-        } else {
-            // Do nothing
-        }
-    });
-
-
-</script>
-
 
 {% endblock %}

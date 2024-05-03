@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from vendor.models import WoodSupplier
+from wood_delivery.models import DeliveryRecord
 from projects.models import Projects
 
 
@@ -14,13 +15,13 @@ def validate_pdf(value):
 
 class Certificate(models.Model):
     id = models.AutoField(primary_key=True)
-    supplier_name = models.ForeignKey(WoodSupplier, on_delete=models.CASCADE )
+    supplier_name = models.ForeignKey(WoodSupplier, on_delete=models.CASCADE)
+    delivery_record = models.OneToOneField(DeliveryRecord, on_delete=models.CASCADE,null=True, blank=True)
     unverified_certificate = models.FileField(upload_to='certificates/unverified/', validators=[validate_pdf])
     verified_certificate = models.FileField(upload_to='certificates/verified/', validators=[validate_pdf])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.CharField(max_length=255)
-    
 
     def __str__(self):
         return f"Certificate {self.id} for {self.supplier_name}"

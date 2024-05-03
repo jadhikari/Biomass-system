@@ -72,7 +72,7 @@ class Insurance(models.Model):
     
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
-    equipment = models.OneToOneField(Equipment, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     policy_number = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
     start_date = models.DateField()

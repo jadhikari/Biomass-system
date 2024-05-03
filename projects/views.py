@@ -78,7 +78,7 @@ class ProjectDetailsView(LoginRequiredMixin,PermissionRequiredMixin, View):
 
     def get(self, request, project_id):
         project = get_object_or_404(Projects, pk=project_id)
-        equipment = Equipment.objects.filter(project=project_id)
+        equipment = Equipment.objects.filter(project=project_id).select_related('project')
         breadcrumbs = generate_breadcrumbs({'name': f'Project {project_id} Detail'})
         context = {
             'project': project,
@@ -148,57 +148,62 @@ class EquipmentEditView(LoginRequiredMixin, PermissionRequiredMixin, View):
             context = {'form': form, 'breadcrumbs': breadcrumbs}
             return render(request, 'projects/edit_equipment.html', context)
 
-class EquipmentDetailsView(LoginRequiredMixin,PermissionRequiredMixin, View):
+class EquipmentDetailsView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'projects.view_equipment'
     raise_exception = True
 
     def get(self, request, project_id, id):
-        equipment = Equipment.objects.filter(Q(project=project_id) & Q(id=id))
-        insurance = Insurance.objects.filter(Q(project=project_id) & Q(equipment=id))
-        maintenance_data = sorted(Maintenance.objects.filter(Q(project=project_id) & Q(equipment=id)), key=lambda x: x.id, reverse=True)
-        w_claim = Claim.objects.filter(Q(project=project_id) & Q(claim_type='Warranty') & Q(equipment=id))
-        i_claim = Claim.objects.filter(Q(project=project_id) & Q(claim_type='Insurance') & Q(equipment=id))
+        equipment = Equipment.objects.select_related('project').filter(project_id=project_id, id=id)
+        insurance = Insurance.objects.select_related('project').filter(project_id=project_id, equipment_id=id).order_by('-id')
+        maintenance_data = Maintenance.objects.filter(project_id=project_id, equipment_id=id).order_by('-id')
+        w_claim = Claim.objects.filter(project_id=project_id, claim_type='Warranty', equipment_id=id).order_by('-id')
+        i_claim = Claim.objects.filter(project_id=project_id, claim_type='Insurance', equipment_id=id).order_by('-id')
         today = timezone.now().date()
         breadcrumbs = generate_breadcrumbs(
             {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
             {'name': f'Equipment Detail'}
-            )
+        )
         context = {
             'equipment_data': equipment,
-            'insurance_data':insurance,
-            'maintenance_data':maintenance_data,
-            'w_claim':w_claim,
-            'i_claim':i_claim,
+            'insurance_data': insurance,
+            'maintenance_data': maintenance_data,
+            'w_claim': w_claim,
+            'i_claim': i_claim,
             'today': today,
             'breadcrumbs': breadcrumbs,
         }
         return render(request, 'projects/equipment_detail.html', context)
 
-class InsuranceAddView(LoginRequiredMixin,PermissionRequiredMixin, View):
+class InsuranceAddView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'projects.add_insurance'
     raise_exception = True
 
     def get(self, request, id, project_id):
-        project = get_object_or_404(Projects, pk=project_id)
-        equipment = get_object_or_404(Equipment, pk=id)
+        equipment = get_object_or_404(Equipment.objects.select_related('project'), pk=id)
         breadcrumbs = generate_breadcrumbs(
             {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
             {'name': f'Equipment {equipment.name}','url': f'/project/{project_id}/equipment-detail/{equipment.id}'},
             {'name': 'Add Insurance'}
-            )
-        existing_insurance = Insurance.objects.filter(project=project, equipment=equipment).first()
-        if existing_insurance:
-            error_message = "The selected equipment is already under insurance policy for this project."
-            return render(request, 'projects/add_insurance.html', {'error_message': error_message, 'breadcrumbs':breadcrumbs})
+        )
         form = InsuranceForm()
         context = {'form': form, 'breadcrumbs': breadcrumbs}
         return render(request, 'projects/add_insurance.html', context)
 
     def post(self, request, id, project_id):
         project = get_object_or_404(Projects, pk=project_id)
-        equipment = get_object_or_404(Equipment, pk=id)
+        equipment = get_object_or_404(Equipment.objects.select_related('project'), pk=id)
         form = InsuranceForm(request.POST)
         if form.is_valid():
+            policy_number = form.cleaned_data['policy_number']
+            if Insurance.objects.filter(policy_number__iexact=policy_number, equipment=equipment).exists():
+                form.add_error('policy_number', 'This policy number already exists for the selected equipment.')
+                breadcrumbs = generate_breadcrumbs(
+                    {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
+                    {'name': f'Equipment {equipment.name}','url': f'/project/{project_id}/equipment-detail/{equipment.id}'},
+                    {'name': 'Add Insurance'}
+                )
+                context = {'form': form, 'breadcrumbs': breadcrumbs}
+                return render(request, 'projects/add_insurance.html', context)
             insurance = form.save(commit=False)
             user_string = str(request.user) if request.user.is_authenticated else 'default_by_user'
             form.instance.user = user_string
@@ -211,7 +216,7 @@ class InsuranceAddView(LoginRequiredMixin,PermissionRequiredMixin, View):
                 {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
                 {'name': f'Equipment {equipment.name}','url': f'/project/{project_id}/equipment-detail/{equipment.id}'},
                 {'name': 'Add Insurance'}
-                )
+            )
             context = {'form': form, 'breadcrumbs': breadcrumbs}
             return render(request, 'projects/add_insurance.html', context)
 
@@ -286,35 +291,29 @@ class AddMaintenanceView(LoginRequiredMixin,PermissionRequiredMixin, View):
             context = {'form': form, 'breadcrumbs': breadcrumbs}
             return render(request, 'projects/add_maintenance.html', context)
 
-class MaintenanceDetailsView(LoginRequiredMixin,PermissionRequiredMixin, View):
+class MaintenanceDetailsView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'projects.view_maintenance'
     raise_exception = True
 
-    def get(self, request, project_id, equipment_id,maintenance_id):
-            
-            maintenance = Maintenance.objects.get(project=project_id, equipment=equipment_id, id=maintenance_id)
-            request_user_str = str(request.user)
-            # Check if maintenance is already approved
-            if maintenance.approval:
-                can_approve = False
-            elif request_user_str == maintenance.user:
-                # If the logged-in user is the same as the maintenance user, they cannot approve
-                can_approve = False
-            else:
-                # Otherwise, the user can approve
-                can_approve = True
-        
-            breadcrumbs = generate_breadcrumbs(
-                {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
-                {'name': f'Equipment Detail', 'url': f'/project/{project_id}/equipment-detail/{equipment_id}'},
-                {'name': f'Maintenance Detail'},
-                )
-            context = {
-                'maintenance':maintenance,
-                'breadcrumbs': breadcrumbs,
-                'can_approve': can_approve,
-            }
-            return render(request, 'projects/maintenance_details.html', context)
+    def get(self, request, project_id, equipment_id, maintenance_id):
+        maintenance = get_object_or_404(Maintenance, project_id=project_id, equipment_id=equipment_id, id=maintenance_id)
+
+        # Check if maintenance is already approved
+        can_approve = not (maintenance.approval or str(request.user) == maintenance.user)
+
+        breadcrumbs = generate_breadcrumbs(
+            {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
+            {'name': f'Equipment Detail', 'url': f'/project/{project_id}/equipment-detail/{equipment_id}'},
+            {'name': f'Maintenance Detail'},
+        )
+
+        context = {
+            'maintenance': maintenance,
+            'breadcrumbs': breadcrumbs,
+            'can_approve': can_approve,
+        }
+
+        return render(request, 'projects/maintenance_details.html', context)
     
 class MaintenanceEditView(LoginRequiredMixin,PermissionRequiredMixin, View):
     permission_required = 'projects.change_maintenance'
@@ -327,25 +326,21 @@ class MaintenanceEditView(LoginRequiredMixin,PermissionRequiredMixin, View):
         # Redirect to equipment detail view
         return redirect('projects:equipment_detail', project_id=project_id, id=equipment_id)
 
- 
-    
 
-
-class AddClaimView(LoginRequiredMixin,PermissionRequiredMixin, View):
+class AddClaimView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'projects.add_claim'
     raise_exception = True
+
     def get(self, request, equipment_id, project_id, insurance_id):
-        project = get_object_or_404(Projects, pk=project_id)
-        equipment = get_object_or_404(Equipment, pk=equipment_id)
-        insurance = get_object_or_404(Insurance, pk=insurance_id)
+        equipment = get_object_or_404(Equipment.objects.select_related('project'), pk=equipment_id)
         type = "Insurance"
         form = ClaimForm()
         breadcrumbs = generate_breadcrumbs(
             {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
-            {'name': f'Equipment {equipment}','url': f'/project/{project_id}/equipment-detail/{equipment.id}'},
+            {'name': f'Equipment {equipment}', 'url': f'/project/{project_id}/equipment-detail/{equipment_id}'},
             {'name': 'Insurance Claim'}
-            )
-        context = {'form': form, 'breadcrumbs': breadcrumbs , 'type':type}
+        )
+        context = {'form': form, 'breadcrumbs': breadcrumbs, 'type': type}
         return render(request, 'projects/add_claim.html', context)
 
     def post(self, request, equipment_id, project_id, insurance_id):
@@ -359,31 +354,31 @@ class AddClaimView(LoginRequiredMixin,PermissionRequiredMixin, View):
             form.instance.user = user_string
             claim.project = project
             claim.equipment = equipment
-            claim.insurance = insurance 
+            claim.insurance = insurance
             claim.claim_type = "Insurance"
             claim.save()
-            return redirect('projects:equipment_detail', project_id=project, id=equipment.id)
+            return redirect('projects:equipment_detail', project_id=project_id, id=equipment_id)
         else:
             breadcrumbs = generate_breadcrumbs(
                 {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
-                {'name': f'Equipment {equipment}','url': f'/project/{project_id}/equipment-detail/{equipment.id}'},
+                {'name': f'Equipment {equipment}', 'url': f'/project/{project_id}/equipment-detail/{equipment_id}'},
                 {'name': 'Insurance Claim'}
-                )
+            )
             context = {'form': form, 'breadcrumbs': breadcrumbs}
             return render(request, 'projects/add_claim.html', context)
     
-class AddWClaimView(LoginRequiredMixin, PermissionRequiredMixin,View):
+class AddWClaimView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'projects.add_claim'
     raise_exception = True
+
     def get(self, request, project_id, equipment_id):
-        project = get_object_or_404(Projects, pk=project_id)
         equipment = get_object_or_404(Equipment, pk=equipment_id)
         type = "Warranty"
         form = ClaimForm()
         breadcrumbs = generate_breadcrumbs(
-            {'name': f'Projects {project_id}', 'url': f'/project/{project}/detail/'},
-            {'name': f'{equipment} Detail', 'url': f'/project/{project}/equipment-detail/{equipment.id}'},
-            {'name': 'W-G Claim'}
+            {'name': f'Projects {project_id}', 'url': f'/project/{project_id}/detail/'},
+            {'name': f'{equipment} Detail', 'url': f'/project/{project_id}/equipment-detail/{equipment_id}'},
+            {'name': 'W Claim'}
         )
         context = {'form': form, 'breadcrumbs': breadcrumbs,'type':type}
         return render(request, 'projects/add_claim.html', context)

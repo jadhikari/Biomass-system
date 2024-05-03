@@ -13,20 +13,29 @@
         <title>PG</title>
     </head>
     <body class="container-fluid">
-      <div>
-        <div class="navbar fixed-top" data-bs-theme="dark" id="nav-bar">
-          <img src="{% static 'images/logo.png' %}" alt="" class="img-fluid">
-          {%  if request.user.is_authenticated %}
-            <div class="d-flex align-items-center">
-              <img src="{% static 'images/user.png' %}" alt="" class="img-fluid" style="height: 65px; margin-right: 15px; ">
-              <div id="logintitle">
-                  <p>{{ request.user.username }}</p>
-                  <a href="{% url 'auth_app:logout_user' %}" class="btn btn-sm btn-danger" style="margin-top: -15px;">Logout</a> 
-              </div>
+      <div class="row">
+        <div class="col-auto d-flex">
+            <div class="navbar fixed-top" data-bs-theme="dark" id="nav-bar">
+                <img src="{% static 'images/logo.png' %}" alt="" class="img-fluid">
+                {%  if request.user.is_authenticated %}
+                <div class="d-flex ">
+                  <div class="dropdown" id="drop-user-image">
+                    <img src="{% static 'images/user.png' %}" alt="" class="img-fluid dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="height: 65px; margin-right: 15px; ">
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Profile Details</a>
+                        <a class="dropdown-item" href="{% url 'auth_app:change_password' %}">Change Password</a>
+                    </div>
+                  </div>
+                  <div id="logintitle">
+                      <p>{{ request.user.username }}</p>
+                      <a href="{% url 'auth_app:logout_user' %}" class="btn btn-sm btn-danger" style="margin-top: -15px;">Logout</a> 
+                  </div>
+                </div>
+                {% endif %}
             </div>
-          {% endif %}
         </div>
-
+    </div>
+    
         {%  if request.user.is_authenticated %}
           <div style="margin-top: 90px; padding-left:10px;">
             <span style="font-size:30px;cursor:pointer" onclick="openNav()" id="span">&#9776;</span> 
@@ -73,6 +82,11 @@
                   <a href="{% url 'certificate:verification' %}">{% trans "Certificate" %}</a>
                 </li>
               {% endif %}
+              {% if request.user.is_superuser %}
+                <li class="{% if '/upload-csv' in request.path %} active {% endif %}">
+                    <a href="{% url 'auth_app:activity_log' %}">Active Log</a>
+                </li>
+            {% endif %}
             </ul>
           </div>
         {% endif %}

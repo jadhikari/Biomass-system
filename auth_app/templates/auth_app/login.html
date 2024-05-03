@@ -50,6 +50,6 @@
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">{% trans "submit" %}</button>
-  <!-- <a href="#">Set/Reset Password</a> -->
+  <a href="{% url 'auth_app:password_reset' %}"> Forgot Password</a>
 </form>
 {% endblock %}

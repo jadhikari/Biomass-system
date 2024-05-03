@@ -5,7 +5,7 @@ from vendor.models import WoodSupplier, WoodSource  # Import the ProjectModel fr
 from wood_type.models import WoodType  # Import the ProjectModel from the other app
 
 class DeliveryRecord(models.Model):
-
+    id = models.AutoField(primary_key=True)
     weighing_day = models.DateField()
     slip_no = models.IntegerField()
     woods_type = models.ForeignKey(WoodType, on_delete=models.CASCADE)

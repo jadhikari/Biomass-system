@@ -48,19 +48,20 @@ def verification(request):
 
     # Extract usernames from all_users and supplierLogos
     all_users_usernames = {str(user) for user in all_users}
-    supplier_logos_usernames = {supplierLogo.email.split('@')[0] for supplierLogo in supplierLogos}
-
+    #print(all_users_usernames)
+    supplier_logos_usernames = {supplierLogo.email for supplierLogo in supplierLogos}
+    #print(supplier_logos_usernames)
     # Find matching usernames
     matching_usernames = list(all_users_usernames & supplier_logos_usernames)
-
+    #print(matching_usernames)
     # Find non-matching usernames
     non_matching_usernames_all_users = list(all_users_usernames - supplier_logos_usernames)
-
+    #print(non_matching_usernames_all_users)
     # Filter certificates
     for supplierLogo in supplierLogos:
         for matching_username in matching_usernames:
-            username = supplierLogo.email.split('@')[0]
-            if matching_username == username == request.user.username:
+            #username = supplierLogo.email.split('@')[0]
+            if matching_username == supplierLogo.email == str(request.user):
                 #print (f'{matching_username} == {username}')
                 for certificate in certificates:
                     if certificate.supplier_name == supplierLogo.wood_supplier:
@@ -68,16 +69,16 @@ def verification(request):
                         filtered_certificates.append(certificate)
 
     for supplierLogo in supplierLogos:
-        username = supplierLogo.email.split('@')[0]
+        #username = supplierLogo.email.split('@')[0]
         for non_matching_username in non_matching_usernames_all_users:
             #print(non_matching_username)
-            if username != non_matching_username == request.user.username:
+            if supplierLogo.email != non_matching_username == str(request.user):
                 for certificate in certificates:
                     # Clear the filtered_certificates list
                     filtered_certificates.clear()
                     filtered_certificates.extend(certificates)
 
-    # Sort filtered certificates by ID
+    # Sort filtered certificates by ID in reverse order
     filtered_certificates.sort(key=lambda x: x.id, reverse=True)
 
 
@@ -138,14 +139,16 @@ def verify_and_edit_pdf(request, certificate_id, p12, password):
     print("Edit Certificate Path:", edit_certificate_path)
     print("Supplier Logo Path:", stamp_path)
 
-    # Step 3: Generate a New PDF
+    
+
     new_pdf_directory = os.path.join(settings.MEDIA_ROOT, 'certificates', 'verified')
+    # Step 3: Generate a New PDF
+    os.makedirs(new_pdf_directory,exist_ok= True) 
     new_pdf_path = os.path.join(new_pdf_directory, f'{certificate_supplier_name_id}_verified.pdf')
 
     # Use os.path.join for constructing paths
     new_pdf_path = os.path.normpath(new_pdf_path)
-
-    print("New PDF Path:", new_pdf_path)
+    
 
     date_time_str = datetime.now().strftime("%Y%m%d%H%M%S")
     dct = {
@@ -173,17 +176,15 @@ def verify_and_edit_pdf(request, certificate_id, p12, password):
     with open(file_name, "wb") as fp:
         fp.write(pdf_data)
         fp.write(sign_pdf_data)
-
     # # Update the Certificate model with the new PDF
     pdf_filename = f'{date_time_str}_verified.pdf'
-
     # # Use File context manager to handle file operations
     with open(new_pdf_path, 'rb') as verified_certificate_file:
         data = File(verified_certificate_file)
         certificate = Certificate.objects.get(id=certificate_id)
         certificate.verified_certificate.save(pdf_filename, data, save=True)
-
     return redirect('certificate:verification')
+
 
 
 @login_required
